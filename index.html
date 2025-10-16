@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ViajaFácil - Tu Plataforma de Viajes Ideal</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #f59e0b;
+            --accent: #10b981;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light);
+            overflow-x: hidden;
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 0.5rem 0;
+        }
+        
+        .logo {
+            font-weight: 700;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            margin: 0 0.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary) !important;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background: var(--primary);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(29, 78, 216, 0.9)),
+                        url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            z-index: 2;
+            position: relative;
+        }
+        
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 1s ease;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+        
+        /* Search Card */
+        .search-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transform: translateY(50px);
+            animation: slideUp 0.8s ease 0.5s both;
+        }
+        
+        /* Destination Cards */
+        .destination-card {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            background: white;
+        }
+        
+        .destination-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .destination-image {
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        
+        .destination-card:hover .destination-image {
+            transform: scale(1.1);
+        }
+        
+        .offer-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, var(--secondary), #eab308);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+        }
+        
+        /* Map Section */
+        .map-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #interactiveMap {
+            height: 500px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Features Section */
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: rotateY(180deg) scale(1.1);
+        }
+        
+        /* Statistics */
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, var(--dark), #0f172a);
+            color: white;
+            position: relative;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(50px);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Floating Elements */
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, -15px); }
+            100% { transform: translate(0, 0px); }
+        }
+        
+        /* Loading Animation */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--primary);
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            animation: rotation 1s linear infinite;
+        }
+        
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .search-card {
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand logo" href="#home">
+                <i class="bi bi-airplane-engines me-2"></i>ViajaFácil
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="#home">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="#destinations">Destinos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="#offers">Ofertas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="#map">Mapa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="#about">Nosotros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="#contact">Contacto</a>
+                    </li>
+                </ul>
+                <div class="ms-3">
+                    <button class="btn btn-outline-primary me-2" onclick="openLoginModal()" ><a href="iniciosesion.html">Iniciar Sesión</a></button>
+                    <button class="btn btn-primary" onclick="openRegisterModal()"><a href="iniciosesion.html">Registrarse</a></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <h1 class="hero-title">Descubre el Mundo con <span class="text-warning">ViajaFácil</span></h1>
+                    <p class="hero-subtitle">Encuentra los mejores destinos, compara precios y reserva tu viaje ideal de forma rápida, segura y con las mejores ofertas.</p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <button class="btn btn-warning btn-lg pulse" onclick="scrollToSection('destinations')">
+                            <i class="bi bi-compass me-2"></i>Explorar Destinos
+                        </button>
+                        <button class="btn btn-outline-light btn-lg" onclick="scrollToSection('offers')">
+                            <i class="bi bi-lightning me-2"></i>Ofertas Flash
+                        </button>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center" data-aos="fade-left" data-aos-delay="200">
+                    <div class="floating">
+                        <i class="bi bi-airplane display-1 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Floating Elements -->
+        <div class="position-absolute top-20 start-10 floating" style="animation-delay: 0.5s;">
+            <i class="bi bi-geo-alt text-warning fs-1 opacity-25"></i>
+        </div>
+        <div class="position-absolute bottom-20 end-10 floating" style="animation-delay: 1s;">
+            <i class="bi bi-suitcase-lg text-primary fs-1 opacity-25"></i>
+        </div>
+    </section>
+
+    <!-- Search Section -->
+    <section class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card search-card" data-aos="fade-up">
+                    <div class="card-body p-4 p-lg-5">
+                        <h4 class="text-center mb-4">Encuentra tu viaje perfecto</h4>
+                        <form id="searchForm">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Destino</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-primary text-white">
+                                            <i class="bi bi-geo-alt"></i>
+                                        </span>
+                                        <input type="text" class="form-control" placeholder="¿A dónde quieres ir?" id="destinationInput">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-semibold">Fecha Ida</label>
+                                    <input type="date" class="form-control" id="startDate">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-semibold">Fecha Vuelta</label>
+                                    <input type="date" class="form-control" id="endDate">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-semibold">Viajeros</label>
+                                    <select class="form-select" id="travelers">
+                                        <option value="1">1 viajero</option>
+                                        <option value="2" selected>2 viajeros</option>
+                                        <option value="3">3 viajeros</option>
+                                        <option value="4">4+ viajeros</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100 py-3">
+                                        <i class="bi bi-search me-2"></i>Buscar Viajes
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Destinations Section -->
+    <section id="destinations" class="py-5 mt-5">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h2 class="display-5 fw-bold mb-3">Destinos Populares</h2>
+                <p class="text-muted fs-5">Descubre los lugares más visitados por nuestros viajeros</p>
+            </div>
+            
+            <div class="row g-4" id="destinationsGrid">
+                <!-- Destinations will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Map Section -->
+    <section id="map" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h2 class="display-5 fw-bold mb-3">Explora Nuestros Destinos</h2>
+                <p class="text-muted fs-5">Encuentra tu próximo destino en nuestro mapa interactivo</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-12" data-aos="zoom-in">
+                    <div id="interactiveMap"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h2 class="display-5 fw-bold mb-3">¿Por qué elegir ViajaFácil?</h2>
+                <p class="text-muted fs-5">Te ofrecemos la mejor experiencia de viaje</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-shield-check text-white fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Reservas 100% Seguras</h5>
+                        <p class="text-muted">Proceso de pago encriptado y protección de datos personales garantizada.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-clock text-white fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Ofertas en Tiempo Real</h5>
+                        <p class="text-muted">Accede a promociones exclusivas con descuentos limitados en tiempo real.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-headset text-white fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Soporte 24/7</h5>
+                        <p class="text-muted">Asistencia continua durante todo tu viaje, estés donde estés.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="stats-section py-5 text-white">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-number">15K+</div>
+                    <p class="fs-5">Viajeros Satisfechos</p>
+                </div>
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-number">200+</div>
+                    <p class="fs-5">Destinos Únicos</p>
+                </div>
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-number">98%</div>
+                    <p class="fs-5">Clientes Satisfechos</p>
+                </div>
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="stat-number">24/7</div>
+                    <p class="fs-5">Soporte Disponible</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer pt-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-airplane-engines me-2"></i>ViajaFácil
+                    </h5>
+                    <p class="text-light mb-4">Tu plataforma de confianza para reservas de viajes. Ofrecemos los mejores destinos al mejor precio con seguridad garantizada.</p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-light fs-5"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-light fs-5"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-light fs-5"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-light fs-5"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="fw-bold mb-3">Enlaces Rápidos</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#home" class="text-light text-decoration-none">Inicio</a></li>
+                        <li class="mb-2"><a href="#destinations" class="text-light text-decoration-none">Destinos</a></li>
+                        <li class="mb-2"><a href="#offers" class="text-light text-decoration-none">Ofertas</a></li>
+                        <li class="mb-2"><a href="#map" class="text-light text-decoration-none">Mapa</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold mb-3">Soporte</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Centro de Ayuda</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Contacto</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Política de Privacidad</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Términos y Condiciones</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-3">
+                    <h6 class="fw-bold mb-3">Contacto</h6>
+                    <ul class="list-unstyled text-light">
+                        <li class="mb-2">
+                            <i class="bi bi-geo-alt me-2"></i>IES Augustóbriga, Navalmoral de la Mata
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-envelope me-2"></i>info@viajafacil.com
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-telephone me-2"></i>+34 927 123 456
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="my-4 bg-light opacity-25">
+            
+            <div class="text-center py-3">
+                <p class="mb-0">&copy; 2024 ViajaFácil. Proyecto DAW - IES Augustóbriga. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- AOS Animation -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize AOS
+        
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
+            }
+        });
+
+        // Sample destinations data
+        const destinations = [
+            {
+                id: 1,
+                name: "París, Francia",
+                price: 450,
+                originalPrice: 560,
+                discount: 20,
+                image: "https://images.unsplash.com/photo-1502602898536-47ad22581b52?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                description: "La ciudad del amor con la Torre Eiffel y museos increíbles",
+                coordinates: [48.8566, 2.3522]
+            },
+            {
+                id: 2,
+                name: "Bali, Indonesia",
+                price: 780,
+                originalPrice: 920,
+                discount: 15,
+                image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                description: "Isla paradisíaca con templos y playas de ensueño",
+                coordinates: [-8.4095, 115.1889]
+            },
+            {
+                id: 3,
+                name: "Nueva York, USA",
+                price: 920,
+                originalPrice: 920,
+                discount: 0,
+                image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                description: "La ciudad que nunca duerme con rascacielos icónicos",
+                coordinates: [40.7128, -74.0060]
+            },
+            {
+                id: 4,
+                name: "Tokio, Japón",
+                price: 1150,
+                originalPrice: 1270,
+                discount: 10,
+                image: "https://images.unsplash.com/photo-1540959733332-abcde8f5c5c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                description: "Fusión perfecta entre tradición y tecnología futurista",
+                coordinates: [35.6762, 139.6503]
+            },
+            {
+                id: 5,
+                name: "Roma, Italia",
+                price: 550,
+                originalPrice: 690,
+                discount: 20,
+                image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                description: "La ciudad eterna con historia en cada rincón",
+                coordinates: [41.9028, 12.4964]
+            },
+            {
+                id: 6,
+                name: "Santorini, Grecia",
+                price: 680,
+                originalPrice: 850,
+                discount: 20,
+                image: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                description: "Isla con puestas de sol espectaculares y casas blancas",
+                coordinates: [36.3932, 25.4615]
+            }
+        ];
+
+        // Load destinations
+        // esta función carga los destinos en la sección de destinos populares
+        // cada destino se muestra en una tarjeta con imagen, nombre, precio y descripción
+        // al hacer clic en una tarjeta, se muestra un modal con más detalles del destino
+        // la función también aplica animaciones AOS a cada tarjeta
+        function loadDestinations() {
+            const grid = document.getElementById('destinationsGrid');
+            grid.innerHTML = '';
+
+            destinations.forEach((destination, index) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4';
+                col.setAttribute('data-aos', 'fade-up');
+                col.setAttribute('data-aos-delay', (index * 100) + 100);
+
+                col.innerHTML = `
+                    <div class="destination-card h-100" onclick="showDestinationModal(${destination.id})">
+                        <div class="position-relative overflow-hidden">
+                            <img src="${destination.image}" class="destination-image w-100" alt="${destination.name}">
+                            ${destination.discount > 0 ? `<div class="offer-badge">-${destination.discount}%</div>` : ''}
+                            <div class="position-absolute bottom-0 start-0 end-0 p-3 text-white" 
+                                 style="background: linear-gradient(transparent, rgba(0,0,0,0.8))">
+                                <h5 class="mb-1">${destination.name}</h5>
+                                <div class="d-flex align-items-center">
+                                    ${destination.discount > 0 ? 
+                                        `<span class="text-decoration-line-through me-2 opacity-75">€${destination.originalPrice}</span>` : 
+                                        ''}
+                                    <span class="fw-bold fs-5">€${destination.price}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">${destination.description}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">⭐ 4.8</span>
+                                <button class="btn btn-primary btn-sm">
+                                    <i class="bi bi-eye me-1"></i>Ver Detalles
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(col);
+            });
+        }
+
+        // Initialize map
+        // esta función inicializa el mapa interactivo usando Leaflet
+        // el mapa se centra en coordenadas globales y tiene un nivel de zoom inicial de 2
+        // se agregan marcadores para cada destino con un popup que muestra detalles del destino
+
+        function initMap() {
+            const map = L.map('interactiveMap').setView([20, 0], 2);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add markers for each destination
+            destinations.forEach(destination => {
+                const marker = L.marker(destination.coordinates).addTo(map);
+                marker.bindPopup(`
+                    <div class="text-center">
+                        <h6>${destination.name}</h6>
+                        <img src="${destination.image}" style="width: 150px; height: 100px; object-fit: cover;" class="rounded mb-2">
+                        <p class="mb-1">${destination.description}</p>
+                        <strong class="text-primary">€${destination.price}</strong>
+                        <br>
+                        <button class="btn btn-primary btn-sm mt-2" onclick="showDestinationModal(${destination.id})">
+                            Ver Detalles
+                        </button>
+                    </div>
+                `);
+            });
+        }
+
+        // Show destination modal
+        function showDestinationModal(id) {
+            const destination = destinations.find(d => d.id === id);
+            if (destination) {
+                // In a real application, you would show a modal with detailed information
+                alert(`Detalles de ${destination.name}\nPrecio: €${destination.price}\n\nEsta funcionalidad abriría un modal con toda la información del destino, fotos adicionales, formulario de reserva, etc.`);
+            }
+        }
+
+        // Scroll to section
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        // Form submission
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const destination = document.getElementById('destinationInput').value;
+            const startDate = document.getElementById('startDate').value;
+            const travelers = document.getElementById('travelers').value;
+            
+            // Show loading animation
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="loader"></span> Buscando...';
+            submitBtn.disabled = true;
+            
+            // Simulate search
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                if (destination) {
+                    alert(`Buscando viajes a ${destination} para ${travelers} viajeros`);
+                } else {
+                    alert('Mostrando todos los destinos disponibles');
+                }
+            }, 2000);
+        });
+
+        // Open login modal
+        function openLoginModal() {
+            alert('Aquí se abriría el modal de inicio de sesión con formulario de email/contraseña, opciones de redes sociales, etc.');
+        }
+
+        // Open register modal
+        function openRegisterModal() {
+            alert('Aquí se abriría el modal de registro con formulario completo de creación de cuenta.');
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDestinations();
+            initMap();
+            
+            // Add loading animation to page
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 0.5s ease';
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
