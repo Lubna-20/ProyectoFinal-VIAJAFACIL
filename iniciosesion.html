@@ -551,6 +551,8 @@
 
     <script>
         // Switch between login and register forms
+        //esta función cambia entre las pestañas de "Iniciar Sesión" y "Registrarse"
+        // y muestra el formulario correspondiente
         function switchTab(tab) {
             // Update tabs
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -561,6 +563,9 @@
             });
             
             // Update forms
+            // oculta todos los formularios y muestra solo el formulario seleccionado
+            // esto se hace eliminando la clase 'active' de todos los formularios
+            // y agregándola solo al formulario correspondiente
             document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
             
             if (tab === 'login') {
@@ -570,10 +575,13 @@
             }
             
             // Hide messages when switching tabs
+            // oculta cualquier mensaje de éxito o error al cambiar de pestaña
             hideMessages();
         }
         
         // Show forgot password form
+        // esta función muestra el formulario de "Olvidé mi contraseña"
+        // y oculta los demás formularios
         function showForgotPassword() {
             document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
             document.getElementById('forgotPasswordForm').classList.add('active');
@@ -581,6 +589,8 @@
         }
         
         // Toggle password visibility
+        // esta función alterna la visibilidad de la contraseña
+        // cambiando el tipo de input entre 'password' y 'text'
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
             const toggle = input.parentNode.querySelector('.password-toggle i');
@@ -597,6 +607,9 @@
         }
         
         // Check password strength
+        // esta función evalúa la fortaleza de la contraseña ingresada
+        // y actualiza una barra de progreso y un texto indicativo
+        // basado en criterios como longitud y variedad de caracteres
         function checkPasswordStrength(password) {
             const bar = document.getElementById('passwordStrengthBar');
             const text = document.getElementById('passwordStrengthText');
@@ -631,6 +644,7 @@
         }
         
         // Show success message
+        // esta función muestra un mensaje de éxito con el texto proporcionado
         function showSuccess(message) {
             const successElement = document.getElementById('successMessage');
             const successText = document.getElementById('successText');
@@ -641,6 +655,8 @@
         }
         
         // Show error message
+        // esta función muestra un mensaje de error con el texto proporcionado
+        // y oculta cualquier mensaje de éxito
         function showError(message) {
             const errorElement = document.getElementById('errorMessage');
             const errorText = document.getElementById('errorText');

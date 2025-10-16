@@ -730,6 +730,9 @@
             }).addTo(map);
 
             // Add markers for each destination
+            // cada marcador tiene un popup con el nombre, imagen, descripción y precio del destino
+            // también incluye un botón para ver más detalles que llama a la función showDestinationModal
+
             destinations.forEach(destination => {
                 const marker = L.marker(destination.coordinates).addTo(map);
                 marker.bindPopup(`
@@ -748,6 +751,10 @@
         }
 
         // Show destination modal
+        // esta función muestra un modal con detalles del destino al hacer clic en una tarjeta o marcador
+        // en una aplicación real, se implementaría un modal con más información, fotos adicionales y
+        // un formulario de reserva
+
         function showDestinationModal(id) {
             const destination = destinations.find(d => d.id === id);
             if (destination) {
@@ -757,6 +764,9 @@
         }
 
         // Scroll to section
+        // esta función desplaza suavemente la vista a una sección específica de la página
+        // se utiliza al hacer clic en los botones de la sección hero
+
         function scrollToSection(sectionId) {
             document.getElementById(sectionId).scrollIntoView({ 
                 behavior: 'smooth' 
@@ -764,6 +774,10 @@
         }
 
         // Form submission
+        // esta función maneja el envío del formulario de búsqueda
+        // muestra una animación de carga y simula una búsqueda
+        // en una aplicación real, se implementaría la lógica para buscar y mostrar resultados
+
         document.getElementById('searchForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const destination = document.getElementById('destinationInput').value;
@@ -771,12 +785,17 @@
             const travelers = document.getElementById('travelers').value;
             
             // Show loading animation
+            // Aquí se mostraría una animación de carga
+
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="loader"></span> Buscando...';
             submitBtn.disabled = true;
             
             // Simulate search
+            // En una aplicación real, aquí se haría una llamada a la API para buscar viajes
+            // y luego se mostrarían los resultados
+            console.log(`Buscando viajes a ${destination} desde ${startDate} para ${travelers} viajeros`);
             setTimeout(() => {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
@@ -790,11 +809,15 @@
         });
 
         // Open login modal
+        // esta función abriría un modal de inicio de sesión
+        // en una aplicación real, se implementaría un modal con formulario de email/contraseña
         function openLoginModal() {
             alert('Aquí se abriría el modal de inicio de sesión con formulario de email/contraseña, opciones de redes sociales, etc.');
         }
 
         // Open register modal
+        // esta función abriría un modal de registro
+        // en una aplicación real, se implementaría un modal con formulario completo de creación de cuenta
         function openRegisterModal() {
             alert('Aquí se abriría el modal de registro con formulario completo de creación de cuenta.');
         }
